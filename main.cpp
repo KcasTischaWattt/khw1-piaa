@@ -109,20 +109,37 @@ public:
 
 class SpecialVector {
 public:
+    std::string type;
     int size;
     std::vector<int> vec;
     SpecialVector(int s) {
         size = s;
     }
 
+    void setType(int i) {
+        if (i == 1) {
+            type = "from0to5";
+        } else if (i == 2) {
+            type = "from0to4000";
+        } else if (i == 3) {
+            type = "almost_sorted";
+        } else {
+            type = "reversed";
+        }
+    }
+
     void run(int i) {
         if (i == 1) {
+            type = "from0to5";
             smallNumbers();
         } else if (i == 2) {
+            type = "from0to4000";
             bigNumbers();
-        } else if (i == 4) {
+        } else if (i == 3) {
+            type = "almost_sorted";
             almostSorted();
         } else {
+            type = "reversed";
             cursed();
         }
     }
@@ -182,7 +199,6 @@ public:
 class Sort {
 public:
     std::string type;
-    int t;
 
     void setType(int i) {
         switch (i) {
@@ -281,6 +297,10 @@ public:
                 }
             }
         }
+        if (!std::is_sorted(vector.begin(), vector.end())) {
+            std::cout << "error";
+            throw std::exception();
+        }
     }
 
     void selectionSort(std::vector<int> &vector) {
@@ -295,6 +315,10 @@ public:
             // "Опускаем" найденный минимальный элемент на текущую позицию
             std::swap(vector[i], vector[min]);
         }
+        if (!std::is_sorted(vector.begin(), vector.end())) {
+            std::cout << "error";
+            throw std::exception();
+        }
     }
 
     void insertionSort(std::vector<int> &vector) {
@@ -305,6 +329,10 @@ public:
                 std::swap(vector[j], vector[j - 1]);
                 j--;
             }
+        }
+        if (!std::is_sorted(vector.begin(), vector.end())) {
+            std::cout << "error";
+            throw std::exception();
         }
     }
 
@@ -344,11 +372,20 @@ public:
             j++;
             k++;
         }
+        if (!std::is_sorted(vector.begin(), vector.end())) {
+            std::cout << "error";
+            throw std::exception();
+        }
+
     }
 
     void quickSort(std::vector<int> &vector) {
         // Вызываем добавочную функцию от границ исходного массива
         quickSortHelper(vector, 0, vector.size() - 1);
+        if (!std::is_sorted(vector.begin(), vector.end())) {
+            std::cout << "error";
+            throw std::exception();
+        }
     }
 
     void quickSortHelper(std::vector<int> &vector, int left, int right) {
@@ -362,26 +399,18 @@ public:
     }
 
     int quickSortPartitionHelper(std::vector<int> &vector, int left, int right) {
-        int i = left, j = right;
-        // Выбираем левый элемент в качестве опорного
+        // Выбираем первый элемент в качестве опорного
         int pivot = vector[left];
-        while (i < j) {
-            // Ищем элемент, больший опорного
-            while (pivot >= vector[i]) {
-                i++;
-            }
-            // Ищем элемент, меньший или равный опорному
-            while (pivot < vector[j]) {
-                j--;
-            }
-            // Меняем их местами
-            if (i < j) {
-                std::swap(vector[i], vector[j]);
+        int k = right;
+        for (int i = right; i > left; i--) {
+            // Если элемент больше опорного, то меняем его с элементом с индексом k
+            if (vector[i] > pivot) {
+                std::swap(vector[i], vector[k]);
             }
         }
-        // Меняем опорный элемент с элементом, на котором остановились
-        std::swap(vector[left], vector[j]);
-        return j;
+        // Меняем опорный элемент с элементом с индексом k
+        std::swap(vector[left], vector[k]);
+        return k;
     }
 
     void binaryInsertionSort(std::vector<int> &vector) {
@@ -403,6 +432,10 @@ public:
             }
             vector[left] = temp;
         }
+        if (!std::is_sorted(vector.begin(), vector.end())) {
+            std::cout << "error";
+            throw std::exception();
+        }
     }
 
     void heapSort(std::vector<int> &vector) {
@@ -411,6 +444,10 @@ public:
         // Извлекаем элементы из кучи
         for (int i = 0; i < vector.size(); ++i) {
             vector[i] = heap.extract();
+        }
+        if (!std::is_sorted(vector.begin(), vector.end())) {
+            std::cout << "error";
+            throw std::exception();
         }
     }
 
@@ -425,6 +462,10 @@ public:
         // Вызываем сортировку подсчетом для каждого разряда
         for (int radix = 1; max_elem / radix > 0; radix *= 256) {
             radixSortCountHelper(vector, radix);
+        }
+        if (!std::is_sorted(vector.begin(), vector.end())) {
+            std::cout << "error";
+            throw std::exception();
         }
     }
 
@@ -454,24 +495,28 @@ public:
         }
     }
 
-    void countSort(std::vector<int> &v) {
-        int max_elem = v[0];
-        for (int i = 1; i < v.size(); ++i) {
-            if (v[i] > max_elem) {
-                max_elem = v[i];
+    void countSort(std::vector<int> &vector) {
+        int max_elem = vector[0];
+        for (int i = 1; i < vector.size(); ++i) {
+            if (vector[i] > max_elem) {
+                max_elem = vector[i];
             }
         }
         // count[i] - количество вхождений i в исходный массив
         std::vector<int> count(max_elem + 1, 0);
-        for (int i = 0; i < v.size(); ++i) {
-            ++count[v[i]];
+        for (int i = 0; i < vector.size(); ++i) {
+            ++count[vector[i]];
         }
         // Заполняем выходной массив
         int ind = 0;
         for (int i = 0; i < max_elem + 1; ++i) {
             for (int j = 0; j < count[i]; ++j) {
-                v[ind++] = i;
+                vector[ind++] = i;
             }
+        }
+        if (!std::is_sorted(vector.begin(), vector.end())) {
+            std::cout << "error";
+            throw std::exception();
         }
     }
 
@@ -492,6 +537,10 @@ public:
                 vector[j] = temp;
             }
         }
+        if (!std::is_sorted(vector.begin(), vector.end())) {
+            std::cout << "error";
+            throw std::exception();
+        }
     }
 
     void shellSortShell(std::vector<int> &vector) {
@@ -509,6 +558,10 @@ public:
                 // Приравниваем j-й элемент к запомненному
                 vector[j] = temp;
             }
+        }
+        if (!std::is_sorted(vector.begin(), vector.end())) {
+            std::cout << "error";
+            throw std::exception();
         }
     }
 
@@ -528,6 +581,10 @@ public:
                 break;
             }
         }
+        if (!std::is_sorted(vector.begin(), vector.end())) {
+            std::cout << "error";
+            throw std::exception();
+        }
     }
 
     void iverson12Sort(std::vector<int> &vector) {
@@ -546,32 +603,35 @@ public:
                 break;
             }
         }
+        if (!std::is_sorted(vector.begin(), vector.end())) {
+            std::cout << "error";
+            throw std::exception();
+        }
     }
 };
 
 void test(int len, int step) {
     SpecialVector vector(len);
     std::ofstream out;
-    out.open("results.txt", std::ios_base::app);
+    out.open("resultsBig.csv", std::ios_base::app);
     for (int j = 0; j < 13; ++j) {
         Sort sort;
         sort.setType(j);
-        out << sort.type << ";";
         for (int i = 1; i < 5; ++i) {
-            out << "This is type " << i << ";";
+            vector.setType(i);
             vector.run(i);
             for (int k = step; k <= len; k += step) {
-                out << "Length:" << k << std::endl;
-                for (int l = 0; l < 10; ++l) {
-                    std::vector<int> temp(i);
-                    for (int m = 0; m < i; ++m) {
+                for (int l = 0; l < 50; ++l) {
+                    std::vector<int> temp(k);
+                    for (int m = 0; m < k; ++m) {
                         temp[m] = vector.vec[m];
                     }
                     auto start = std::chrono::high_resolution_clock::now();
                     sort.run(i, temp);
                     auto elapsed = std::chrono::high_resolution_clock::now() - start;
                     int64_t nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed).count();
-                    out << nanoseconds << std::endl;
+                    out << sort.type << ";" << vector.type << ";" << "Length:" << k << ";" << nanoseconds << std::endl;
+                    //std::cout << sort.type << ";" << vector.type << ";" << "Length:" << k << ";" << nanoseconds << std::endl;
                 }
             }
         }
@@ -579,6 +639,5 @@ void test(int len, int step) {
 }
 
 int main() {
-    test(300, 50);
     test(4100, 100);
 }
