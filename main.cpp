@@ -627,7 +627,7 @@ void test(int len, int step) {
                         temp[m] = vector.vec[m];
                     }
                     auto start = std::chrono::high_resolution_clock::now();
-                    sort.run(i, temp);
+                    sort.run(j, temp);
                     auto elapsed = std::chrono::high_resolution_clock::now() - start;
                     int64_t nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed).count();
                     out << sort.type << ";" << vector.type << ";" << "Length:" << k << ";" << nanoseconds << std::endl;
